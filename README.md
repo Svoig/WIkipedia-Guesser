@@ -1,0 +1,1 @@
+A little game that grabs an image from a Wikipedia article and titles from three related articles. Guess the right title, get a point.
