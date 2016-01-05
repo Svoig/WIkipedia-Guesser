@@ -7,6 +7,11 @@ var title = '';
 var lastTitle = '';
 
 
+function jsonpTestCallback(results) {
+	console.log("HERE!", results);
+	return results;
+};
+
 function asynch(fn, callback) {
 	setTimeout(function () {
 		fn();
@@ -42,15 +47,15 @@ function randomPage(results) {
 
 function randomImage() {
 
-	var urlEnd = "?action=query&list=allimagesformat=json&aiprop=url&aifrom="; 
-	urlEnd += String(lastTitle);
-	console.log("Trying to add ", lastTitle, " to ", urlEnd);
+	var urlEnd = "?action=query&list=allimages&format=json&aiprop=url&aisort=name&aifrom="; 
+	urlEnd += lastTitle;
 
 	var imgPromise =  $.ajax({
 		url: endPoint + urlEnd,
+		type: "GET",
+		contentType: "application/javascript",
 		dataType: "jsonp",
-		jsonp: "false",
-		jsonpCallback: //SET TO WHAT I EXPECT TO GET BACK FROM API!
+		jsonpCallback: "jsonpTestCallback",
 		headers: {'Api-User-Agent': 'WikiGuesser/0.1; harrisonccole@gmail.com', "Content Type": "application/json; charset=UTF-8"}
 	});
 
