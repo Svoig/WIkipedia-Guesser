@@ -25,7 +25,8 @@ function ArticleGetter() {
 		dataType: 'jsonp',
 		headers: {'Api-User-Agent': 'WikiGuesser/0.1; harrisonccole@gmail.com', "Content Type": "application/json; charset=UTF-8"}
 		});
-
+		//BUG: Sometimes get 'Cannot read property "bind" of undefined @main.js:30'
+		//I think it's when a page has no picture. I call imgTitlePromise.render, which tries to find a randomPage and randomImage method within its own scope. I'll have to think of a better way to handle this. Global...?
 		var boundRandomPage = this.randomPage.bind(this);
 		var boundRandomImage = this.randomImage.bind(this);
 
@@ -57,22 +58,29 @@ function ArticleGetter() {
 			headers: {'Api-User-Agent': 'WikiGuesser/0.1; harrisonccole@gmail.com', "Content Type": "application/json; charset=UTF-8"}
 		});
 
-		imgTitlePromise.toUrl = this.toUrl;
-		imgTitlePromise.render = this.render;
+		imgTitlePromise.skip =  false;
 
 		imgTitlePromise.success(function(results) {
 				//console.log("Tried to GET ", endPoint + urlEnd, "with a lastTitle of ", lastTitle);
 				if (results.query.pages[Object.keys(results.query.pages)[0]].images !== undefined) {
 
-					 imgTitlePromise.imgTitle = imgTitlePromise.toUrl(results.query.pages[Object.keys(results.query.pages)[0]].images[0].title);
-
-
+					 imgTitlePromise.imgTitle = randArticle.toUrl(results.query.pages[Object.keys(results.query.pages)[0]].images[0].title);
 
 				} else {
-					imgTitlePromise.render();
+					console.log("No image. Setting skip to true");
+					imgTitlePromise.skip =  true;
+					randArticle.render();
 				}
 		})
 		.then(function() {
+
+			if (imgTitlePromise.skip === true) {
+				console.log("No picture - skipped");
+				if($("#random").innerHTML !== '') {
+					$("#random").html('');
+				}
+				return "No picture - skipped";
+			}
 
 			var imgFileUrl = endPoint + "?action=query&format=json&prop=imageinfo&iiurlwidth=540&iiurlheight=360&iiprop=url&titles=" + imgTitlePromise.imgTitle;
 			console.log("Trying to get image: ", imgFileUrl);
@@ -88,7 +96,16 @@ function ArticleGetter() {
 
 			imgPromise.success(function(results) {
 
-				var filter = ['https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Ambox_important.svg/360px-Ambox_important.svg.png'];
+				if (imgTitlePromise.skip === true) {
+				console.log("No picture - skipped");
+				return "No picture - skipped";
+				}
+
+				var filter = {'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Ambox_important.svg/360px-Ambox_important.svg.png': '!',
+				 'https://upload.wikimedia.org/wikipedia/commons/7/74/Red_Pencil_Icon.png':'pencil',
+				  'https://upload.wikimedia.org/wikipedia/en/thumb/6/62/PD-icon.svg/360px-PD-icon.svg.png': 'noCopy',
+				   'https://upload.wikimedia.org/wikipedia/en/thumb/5/5f/Disambig_gray.svg/472px-Disambig_gray.svg.png': 'usb',
+				    'https://upload.wikimedia.org/wikipedia/en/thumb/4/4a/Commons-logo.svg/268px-Commons-logo.svg.png': 'wikimedia'};
 
 				//Saves a lot of typing and confusion
 				imgLocation = results.query.pages[Object.keys(results.query.pages)[0]].imageinfo[0];
@@ -96,7 +113,9 @@ function ArticleGetter() {
 				//Prevent the image from rendering if it's one of the excluded urls, ie the ones in the filter array
 				if (imgLocation.thumburl in filter) {
 					console.log("Excluded url, reloading");
-					imgTitlePromise.render();
+					$("#random").html('');
+					randArticle.render();
+					return "ERROR, no picture on page. Reloading";
 					
 				};
 
