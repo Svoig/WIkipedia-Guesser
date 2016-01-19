@@ -10,11 +10,11 @@ var users = require('./routes/users');
 
 var app = express();
 
-var ArticleGetter = require('./main.js');
+var ArticleGetter = require('./public/javascripts/articlegetter.js');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'hbs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -41,7 +41,7 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.render('error', {
+    res.render('error.hbs', {
       message: err.message,
       error: err
     });
@@ -52,15 +52,11 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
-  res.render('error', {
+  res.render('error.hbs', {
     message: err.message,
     error: {}
   });
 });
 
-
-var articleGetter = new ArticleGetter();
-
-articleGetter.render();
 
 module.exports = app;
