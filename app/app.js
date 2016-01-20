@@ -10,8 +10,6 @@ var users = require('./routes/users');
 
 var app = express();
 
-var ArticleGetter = require('./public/javascripts/articlegetter.js');
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
@@ -57,6 +55,8 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+
 
 
 module.exports = app;

@@ -1,31 +1,23 @@
 var express = require('express');
 var router = express.Router();
-var ArticleGetter = require('../public/javascripts/articlegetter.js')
+var app = require('../app.js');
+var ArticleGetter = require('../public/javascripts/articlegetter.js');
+
+var articleGetter = new ArticleGetter();
+
+articleGetter.render();
 
 /* GET home page. */
+router.get('/random', function(req, res, next) {
+	res.render('index.hbs', {
+		title: "WikiGuesser",
+		randTitle: articleGetter.randTitle,
+		pitcher: articleGetter.imgUrl
+	});
+});
 
-function renderFirst(req, res, next) {
-	var articleGetter = new ArticleGetter();
-	var boundRender = articleGetter.render.bind(articleGetter);
-	boundRender();
-	console.log("Rendered...", !(!articleGetter));
-	console.log(articleGetter.randTitle, articleGetter.imgUrl);
-
-	//if (err) return next(err);
-
-	next();
-}
-
-router.get('/', function(req, res, next) {
-	console.log("Handling get /");
-
-	
-	renderFirst().then(res.render('index.hbs', { 
-  			title: 'BOOSHTON'
-  			/*randTitle: articleGetter.randTitle,
-  	 		randImgUrl: articleGetter.imgUrl, */
-  	  }));
-	
+router.get('/test', function(req, res, next) {
+	res.render('test.hbs');
 });
 
 module.exports = router;

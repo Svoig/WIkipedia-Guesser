@@ -20,7 +20,7 @@ var ArticleGetter = (function() {
 		};
 
 		this.render = function() {
-			console.log("render's this is...",this);
+			console.log("render's this is...",this.name);
 			this.options = { url: this.endPoint + this.rand,
 				method: 'GET',
 				headers: {
@@ -47,8 +47,8 @@ var ArticleGetter = (function() {
 			//Unlike jQuery, request returns JSON
 			var body = JSON.parse(res.body);
 			var key = body.query.random[0];
-			console.log("randomPage's this is...",this);
-			this.randTitle = "<h3>"+key.title+"</h3>";
+			console.log("randomPage's this is...",this.name);
+			this.randTitle = key.title;
 			//Going to need React for this
 
 			this.lastTitle = this.toUrl(key.title);
@@ -66,7 +66,9 @@ var ArticleGetter = (function() {
 					console.log(body.query.allimages[Object.keys(body.query.allimages)[0]]);
 					var imgUrl = body.query.allimages[Object.keys(body.query.allimages)[0]].url;
 
+
 					ArticleGetter.imgUrl = imgUrl;
+
 					console.log("***",ArticleGetter.imgUrl,"***");
 
 					//console.log("What is this??", this);
@@ -81,7 +83,7 @@ var ArticleGetter = (function() {
 
 				} else return error;
 			});
-			console.log("randomImage's this is...", this);
+			console.log("randomImage's this is...", this.name);
 
 		};
 	};
