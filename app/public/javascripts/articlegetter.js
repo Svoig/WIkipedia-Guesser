@@ -19,7 +19,10 @@ var ArticleGetter = (function() {
 			return str.split(" ").join("%20");
 		};
 
-		this.render = function() {
+		this.render = function(err) {
+
+			if (err) return console.error(err);
+
 			console.log("render's this is...",this.name);
 			this.options = { url: this.endPoint + this.rand,
 				method: 'GET',
@@ -69,9 +72,8 @@ var ArticleGetter = (function() {
 
 					ArticleGetter.imgUrl = imgUrl;
 
-					console.log("***",ArticleGetter.imgUrl,"***");
+					console.log("111",ArticleGetter.imgUrl,"111");
 
-					//console.log("What is this??", this);
 
 					if(imgUrl === undefined) {
 						return this.skip = true;
@@ -82,7 +84,9 @@ var ArticleGetter = (function() {
 					console.log("Setting .skip to false!");
 
 				} else return error;
+				console.log("222",ArticleGetter.imgUrl,"222");
 			});
+			console.log("333",ArticleGetter.imgUrl,"333");
 			console.log("randomImage's this is...", this.name);
 
 		};
