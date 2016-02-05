@@ -1,5 +1,4 @@
 var express = require('express');
-var q = require('q');
 var router = express.Router();
 var app = require('../app.js');
 var ArticleGetter = require('../public/javascripts/articlegetter.js');
@@ -8,45 +7,28 @@ var ArticleGetter = require('../public/javascripts/articlegetter.js');
 
 /* GET home page. */
 router.get('/random', function(req, res, next) {
-	var articleGetter = new ArticleGetter();
+	console.log("Getting /random");
+	const articleGetter = new ArticleGetter();
 
-	var p1 = (function() {
+	articleGetter.randomPage()
+	.then(articleGetter.randomImage)
+	.then(function(data) {
 
-		var p2 = articleGetter.render();
-
-
-		return p2;
-
-	})().then(function() {
-		console.log("444",articleGetter.imgUrl, articleGetter.randTitle,"444");
-
-		res.render('index.hbs', {
-			title: "WikiGuesser",
-			randTitle: articleGetter.randTitle,
-			pitcher: articleGetter.imgUrl
-		});		
-	});
-
-	/* var promise = new Promise(function(resolve, reject) {
-		articleGetter.render();
-		resolve(articleGetter.imgUrl);
-	});
-
-	promise.then(function(){
-
-		console.log("444",articleGetter.imgUrl, articleGetter.randTitle,"444");
+		console.log("In /random, AG.imgUrl is... ", articleGetter.imgUrl);
 
 		res.render('index.hbs', {
 			title: "WikiGuesser",
 			randTitle: articleGetter.randTitle,
 			pitcher: articleGetter.imgUrl
 		});
-		
-	}); 
+	})
+	.catch(function(err) {
+		res.render('error.hbs', {
+		error: err
+		});
+	});
 
-	promise.catch(function(error) {
-		console.log(error);
-	});	*/
+	
 
 });
 

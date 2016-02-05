@@ -2,96 +2,116 @@ const request = require('request');
 
 //Eventually accept argument for number of decoy titles to get
 
-var ArticleGetter = (function() {
+const ArticleGetter = (function() {
 
 
 	function ArticleGetter() {
+
+		const self = this;
+
 		this.name = "ArticleGetter";
 		//API endpoint
 		this.endPoint = "https://en.wikipedia.org/w/api.php";
 		//URL for random page
-		this.rand = "/w/api.php?action=query&list=random&format=json&rnnamespace=0";
+		this.rand = "?action=query&list=random&format=json&rnnamespace=0";
 		//Store last title generated, to get the article's image
 		this.lastTitle =  '';
+
+		this.options = { url: this.endPoint + this.rand,
+				method: 'GET',
+				headers: {
+					'Api-User-Agent': 'WikiGuesser/0.1; harrisonccole@gmail.com', 
+					'Content-Type': 'application/json; charset=UTF-8'
+				}			
+			};
 
 		this.toUrl = function(str) {
 			//Eventually add support for special characters
 			return str.split(" ").join("%20");
 		};
 
-		this.render = function(err) {
+		this.handleError = function(err) {
+			console.log("ArticleGuesser encountered an error: ", err)
+		};
 
-			if (err) return console.error(err);
+		this.render = function() {
 
-			console.log("render's this is...",this.name);
-			this.options = { url: this.endPoint + this.rand,
-				method: 'GET',
-				headers: {
-					'Api-User-Agent': 'WikiGuesser/0.1; harrisonccole@gmail.com', 
-					"Content Type": "application/json; charset=UTF-8"
-				}			
-			};
+			const promise = Promise.resolve(self.randomPage());
 
-			request(this.options, function(error, res){
-				if (!error) {
-					boundRandomPage(res);
-					boundRandomImage();
-				} else console.log(error);
-				
+			promise.then(self.randImage);
+			promise.catch(self.handleError);
+
+			return promise;
+
+		};
+
+		this.randomPage = function() {
+
+			const promise = new Promise(function(resolve, reject) {
+
+					request(self.options, function(err, req, res) {
+
+						if(!err) {
+							console.log("Made it into the !err. res is: ", res);
+							self.randTitle = JSON.parse(res).query.random[0].title;
+							self.encodedTitle = self.toUrl(self.randTitle);
+							resolve(self.encodedTitle);
+
+						} else throw new Error(err);
+
+					});
 			});
 
-			var boundRandomPage = this.randomPage.bind(this);
-			var boundRandomImage = this.randomImage.bind(this);
+			promise.catch(self.handleError);
 
+			return promise;
 
 		};
 
-		this.randomPage = function(res) {
-			//Unlike jQuery, request returns JSON
-			var body = JSON.parse(res.body);
-			var key = body.query.random[0];
-			console.log("randomPage's this is...",this.name);
-			this.randTitle = key.title;
-			//Going to need React for this
+		this.randomImage = function(title) {
 
-			this.lastTitle = this.toUrl(key.title);
-		};
-
-		this.randomImage = function() {
-
-			var urlEnd = "?action=query&format=json&list=allimages&ailimit=1&aifrom=" + this.lastTitle.split(" ").join("%20"); 
+			console.log("In randomImage");
+			console.log("Got data ", title, " from randomPage!");
+			console.log("randomImage: encodedTitle is: ", self.encodedTitle);
+			//DOESN'T GIVE ME THE IMAGE URL!! How can I use this method and still get the imgage url?
+			const urlEnd = "?action=query&format=json&titles=" + self.randTitle + "&prop=images"; 
 			
-			this.options.url = this.endPoint + urlEnd;
-
-			request(this.options, function(error, res) {
-				if (!error) {
-					var body = JSON.parse(res.body);
-					console.log(body.query.allimages[Object.keys(body.query.allimages)[0]]);
-					var imgUrl = body.query.allimages[Object.keys(body.query.allimages)[0]].url;
+			self.options.url = self.endPoint + urlEnd;
 
 
-					ArticleGetter.imgUrl = imgUrl;
+			const promise = new Promise(function(resolve, reject) {
 
-					console.log("111",ArticleGetter.imgUrl,"111");
+					request(self.options, function(err, req, res) {
+
+					if (!err) {
+						console.log(res);
+						self.imgUrl = JSON.parse(res).query.pages[0].url;
 
 
-					if(imgUrl === undefined) {
-						return this.skip = true;
-						console.log("this.imgUrl is undefined!");
-					} 
 
-					this.skip = false;
-					console.log("Setting .skip to false!");
 
-				} else return error;
-				console.log("222",ArticleGetter.imgUrl,"222");
+						if(self.imgUrl === undefined) {
+							return this.skip = true;
+							console.log("this.imgUrl is undefined!");
+						} 
+
+						this.skip = false;
+						console.log("Setting .skip to false!");
+
+						console.log("In randomImage, imgUrl is ... ", self.imgUrl);
+						resolve(self.imgUrl);
+
+					} else throw new Error(err.message);
+
+				});
+
 			});
-			console.log("333",ArticleGetter.imgUrl,"333");
-			console.log("randomImage's this is...", this.name);
 
-		};
+			return promise;
 	};
 
+
+};
 return ArticleGetter;
 
 })();
