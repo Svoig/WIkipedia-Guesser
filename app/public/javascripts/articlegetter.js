@@ -85,26 +85,57 @@ const ArticleGetter = (function() {
 
 					if (!err) {
 						console.log(res);
-						self.imgUrl = JSON.parse(res).query.pages[0].url;
+						const query = JSON.parse(res).query;
+						const key = Object.keys(query.pages)[0];
+
+						if(!query.pages[key].images) {
+							console.log("No images!");
+							reject(undefined);
+						}						
+
+						self.imgTitle = query.pages[key].images[0].title;
+
+						console.log("In randomImage, imgTitle is ... ", self.imgTitle);
+
+						self.encodedImgTitle = self.toUrl(self.imgTitle)
+
+						resolve(self.encodedImgTitle);
 
 
-
-
-						if(self.imgUrl === undefined) {
-							return this.skip = true;
-							console.log("this.imgUrl is undefined!");
-						} 
-
-						this.skip = false;
-						console.log("Setting .skip to false!");
-
-						console.log("In randomImage, imgUrl is ... ", self.imgUrl);
-						resolve(self.imgUrl);
 
 					} else throw new Error(err.message);
 
 				});
 
+			});
+
+			promise.then(function() {
+				const p2 = new Promise(function(resolve, reject) {
+					console.log("In p2!!");
+					self.options.url = self.endPoint + "?action=query&format=json&titles=" + self.imgTitle + "&prop=imageinfo&iiprop=url";
+
+					request(self.options, function(err, req, res) {
+						if (!err) {
+							console.log("p2's res is ",res);
+							const query = JSON.parse(res).query;
+							const key  = query[Object.keys(query)[0]];
+							self.imgUrl = key.imageinfo[0].url;
+							resolve(self.imgUrl);
+						} else {
+							throw new Error(err.message);
+						}
+					});
+
+				});
+				return p2;
+			});
+
+			promise.catch(function(data) {
+				if (data === undefined) {
+					self.render();
+				} else {
+					throw new Error(data.message);
+				}
 			});
 
 			return promise;
