@@ -99,8 +99,27 @@ const ArticleGetter = (function() {
 
 						self.encodedImgTitle = self.toUrl(self.imgTitle)
 
-						resolve(self.encodedImgTitle);
 
+						const p2 = new Promise(function(resolve, reject) {
+							console.log("In p2!!");
+							self.options.url = self.endPoint + "?action=query&format=json&titles=" + self.imgTitle + "&prop=imageinfo&iiprop=url&iiurlwidth=270&iiurlheight=180";
+
+							request(self.options, function(err, req, res) {
+								if (!err) {
+									console.log("p2's res is ",res);
+									const query = JSON.parse(res).query;
+									console.log("Query is ...", query);
+									const key  = query.pages[Object.keys(query.pages)[0]];
+									self.imgUrl = key.imageinfo[0].url;
+									resolve(self.imgUrl);
+								} else {
+									throw new Error(err.message);
+								}
+							});
+
+						});
+						
+						resolve(p2);
 
 
 					} else throw new Error(err.message);
@@ -110,24 +129,6 @@ const ArticleGetter = (function() {
 			});
 
 			promise.then(function() {
-				const p2 = new Promise(function(resolve, reject) {
-					console.log("In p2!!");
-					self.options.url = self.endPoint + "?action=query&format=json&titles=" + self.imgTitle + "&prop=imageinfo&iiprop=url";
-
-					request(self.options, function(err, req, res) {
-						if (!err) {
-							console.log("p2's res is ",res);
-							const query = JSON.parse(res).query;
-							const key  = query[Object.keys(query)[0]];
-							self.imgUrl = key.imageinfo[0].url;
-							resolve(self.imgUrl);
-						} else {
-							throw new Error(err.message);
-						}
-					});
-
-				});
-				return p2;
 			});
 
 			promise.catch(function(data) {
