@@ -17,7 +17,7 @@ const ArticleGetter = (function() {
 		//Store last title generated, to get the article's image
 		this.lastTitle =  '';
 
-		this.options = { url: this.endPoint + this.rand,
+		this.options = {
 				method: 'GET',
 				headers: {
 					'Api-User-Agent': 'WikiGuesser/0.1; harrisonccole@gmail.com', 
@@ -48,6 +48,8 @@ const ArticleGetter = (function() {
 		this.randomPage = function() {
 
 			const promise = new Promise(function(resolve, reject) {
+
+				self.options.url = self.endPoint + self.rand;
 
 					request(self.options, function(err, req, res) {
 
@@ -110,7 +112,13 @@ const ArticleGetter = (function() {
 									const query = JSON.parse(res).query;
 									console.log("Query is ...", query);
 									const key  = query.pages[Object.keys(query.pages)[0]];
-									self.imgUrl = key.imageinfo[0].url;
+
+									if (key.imageinfo[0].url.slice(-4) === ".svg") {
+										self.skip = true;
+										self.render();
+									}
+
+									self.imgUrl = key.imageinfo[0].thumburl;
 									resolve(self.imgUrl);
 								} else {
 									throw new Error(err.message);
