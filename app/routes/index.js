@@ -23,9 +23,15 @@ router.get('/random', function(req, res, next) {
 		});
 	})
 	.catch(function(err) {
+
+		if (err === true && articleGetter.skip === true) {
+			articleGetter.render();
+		}
+
 		res.render('error.hbs', {
 		error: err
 		});
+
 	});
 
 	
@@ -35,5 +41,17 @@ router.get('/random', function(req, res, next) {
 router.get('/test', function(req, res, next) {
 	res.render('test.hbs');
 });
+
+router.post('/random', function(req, res, next) {
+	articleGetter.render()
+	.then(function(data) {
+		res.render('index.hbs', {
+			title: "WikiGuesser",
+			randTitle: articleGetter.imgUrl,
+			pitcher: articleGetter.imgUrl
+		});
+	})
+	.catch(articleGetter.handleError);
+})
 
 module.exports = router;

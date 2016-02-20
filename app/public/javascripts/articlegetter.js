@@ -31,15 +31,24 @@ const ArticleGetter = (function() {
 		};
 
 		this.handleError = function(err) {
+
+			if (err === true && self.skip === true) {
+				const options = {method: "POST"};
+				request(options);
+			}
 			console.log("ArticleGuesser encountered an error: ", err)
 		};
 
 		this.render = function() {
 
-			const promise = Promise.resolve(self.randomPage());
-
-			promise.then(self.randImage);
-			promise.catch(self.handleError);
+			const promise = new Promise(function(resolve, reject) {
+				resolve(self.randomPage());
+			})
+			.then(function(data) {
+				console.log("Trying to move on to randomImage");
+				self.randomImage();
+			})
+			.catch(self.handleError);
 
 			return promise;
 
@@ -75,7 +84,7 @@ const ArticleGetter = (function() {
 			console.log("In randomImage");
 			console.log("Got data ", title, " from randomPage!");
 			console.log("randomImage: encodedTitle is: ", self.encodedTitle);
-			//DOESN'T GIVE ME THE IMAGE URL!! How can I use this method and still get the imgage url?
+			
 			const urlEnd = "?action=query&format=json&titles=" + self.randTitle + "&prop=images"; 
 			
 			self.options.url = self.endPoint + urlEnd;
@@ -92,9 +101,11 @@ const ArticleGetter = (function() {
 
 						if(!query.pages[key].images) {
 							console.log("No images!");
-							reject(undefined);
-						}						
+							self.skip = true;
+							reject(self.skip);
+						} else {
 
+						self.skip = false;
 						self.imgTitle = query.pages[key].images[0].title;
 
 						console.log("In randomImage, imgTitle is ... ", self.imgTitle);
@@ -114,10 +125,11 @@ const ArticleGetter = (function() {
 									const key  = query.pages[Object.keys(query.pages)[0]];
 
 									if (key.imageinfo[0].url.slice(-4) === ".svg") {
+										console.log("It's an svg!");
 										self.skip = true;
-										self.render();
-									}
-
+										reject(self.skip);
+									} else console.log("Not an svg");
+									self.skip = false;
 									self.imgUrl = key.imageinfo[0].thumburl;
 									resolve(self.imgUrl);
 								} else {
@@ -129,6 +141,8 @@ const ArticleGetter = (function() {
 						
 						resolve(p2);
 
+						}					
+
 
 					} else throw new Error(err.message);
 
@@ -139,13 +153,7 @@ const ArticleGetter = (function() {
 			promise.then(function() {
 			});
 
-			promise.catch(function(data) {
-				if (data === undefined) {
-					self.render();
-				} else {
-					throw new Error(data.message);
-				}
-			});
+			promise.catch(self.handleError);
 
 			return promise;
 	};
