@@ -31,12 +31,17 @@ const ArticleGetter = (function() {
 		};
 
 		this.handleError = function(err) {
-
+			console.log("Handling error ", err);
 			if (err === true && self.skip === true) {
-				const options = {method: "POST"};
-				request(options);
+
+				const promise = new Promise(function(resolve, reject) {
+					self.render();
+				})
+				.catch(self.handleError);
+
+			} else {
+				console.log("ArticleGuesser encountered an error: ", err);
 			}
-			console.log("ArticleGuesser encountered an error: ", err)
 		};
 
 		this.render = function() {
@@ -45,8 +50,7 @@ const ArticleGetter = (function() {
 				resolve(self.randomPage());
 			})
 			.then(function(data) {
-				console.log("Trying to move on to randomImage");
-				self.randomImage();
+				self.randomImage(data);
 			})
 			.catch(self.handleError);
 
@@ -63,7 +67,6 @@ const ArticleGetter = (function() {
 					request(self.options, function(err, req, res) {
 
 						if(!err) {
-							console.log("Made it into the !err. res is: ", res);
 							self.randTitle = JSON.parse(res).query.random[0].title;
 							self.encodedTitle = self.toUrl(self.randTitle);
 							resolve(self.encodedTitle);
@@ -81,9 +84,7 @@ const ArticleGetter = (function() {
 
 		this.randomImage = function(title) {
 
-			console.log("In randomImage");
 			console.log("Got data ", title, " from randomPage!");
-			console.log("randomImage: encodedTitle is: ", self.encodedTitle);
 			
 			const urlEnd = "?action=query&format=json&titles=" + self.randTitle + "&prop=images"; 
 			
@@ -95,7 +96,6 @@ const ArticleGetter = (function() {
 					request(self.options, function(err, req, res) {
 
 					if (!err) {
-						console.log(res);
 						const query = JSON.parse(res).query;
 						const key = Object.keys(query.pages)[0];
 
@@ -104,7 +104,7 @@ const ArticleGetter = (function() {
 							self.skip = true;
 							reject(self.skip);
 						} else {
-
+							console.log("setting skip to false line 106");
 						self.skip = false;
 						self.imgTitle = query.pages[key].images[0].title;
 
@@ -114,24 +114,24 @@ const ArticleGetter = (function() {
 
 
 						const p2 = new Promise(function(resolve, reject) {
-							console.log("In p2!!");
 							self.options.url = self.endPoint + "?action=query&format=json&titles=" + self.imgTitle + "&prop=imageinfo&iiprop=url&iiurlwidth=270&iiurlheight=180";
 
 							request(self.options, function(err, req, res) {
 								if (!err) {
-									console.log("p2's res is ",res);
 									const query = JSON.parse(res).query;
-									console.log("Query is ...", query);
 									const key  = query.pages[Object.keys(query.pages)[0]];
 
 									if (key.imageinfo[0].url.slice(-4) === ".svg") {
 										console.log("It's an svg!");
 										self.skip = true;
 										reject(self.skip);
-									} else console.log("Not an svg");
-									self.skip = false;
-									self.imgUrl = key.imageinfo[0].thumburl;
-									resolve(self.imgUrl);
+									} else {
+										console.log("Not an svg");
+										console.log("Setting skip to false, line 134");
+										self.skip = false;
+										self.imgUrl = key.imageinfo[0].thumburl;
+										resolve(self.imgUrl);
+									}
 								} else {
 									throw new Error(err.message);
 								}
