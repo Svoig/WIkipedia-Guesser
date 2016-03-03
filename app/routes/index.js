@@ -40,8 +40,8 @@ router.get('/random', function(req, res, next) {
 
 });
 
-router.get('/test', function(req, res, next) {
-	res.render('test.hbs');
+router.get('/main', function(req, res, next) {
+	res.render('main.hbs');
 });
 
 
