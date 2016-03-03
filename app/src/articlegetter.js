@@ -121,13 +121,12 @@ const ArticleGetter = (function() {
 									const query = JSON.parse(res).query;
 									const key  = query.pages[Object.keys(query.pages)[0]];
 
-									if (key.imageinfo[0].url.slice(-4) === ".svg") {
-										console.log("It's an svg!");
+									if ( self.filter(key.imageinfo[0].url) === false ) {
+										console.log("Setting skip to true, line 125");
 										self.skip = true;
 										reject(self.skip);
 									} else {
-										console.log("Not an svg");
-										console.log("Setting skip to false, line 134");
+										console.log("Setting skip to false, line 129");
 										self.skip = false;
 										self.imgUrl = key.imageinfo[0].thumburl;
 										resolve(self.imgUrl);
@@ -157,6 +156,14 @@ const ArticleGetter = (function() {
 
 			return promise;
 	};
+
+	this.filter = function(img) {
+		if (img.slice(-4) === ".svg") {
+			if (img.slice(9) !== "File:Flag") {
+				return false;
+			} else return true;
+		} else return true;
+	}
 
 
 };

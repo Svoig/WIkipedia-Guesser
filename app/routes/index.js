@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var app = require('../app.js');
-var ArticleGetter = require('../public/javascripts/articlegetter.js');
+var ArticleGetter = require('../src/articlegetter.js');
 
 
 
