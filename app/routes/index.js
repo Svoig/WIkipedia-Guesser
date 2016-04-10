@@ -4,8 +4,6 @@ var router = express.Router();
 var app = require('../app.js');
 var ArticleGetter = require('../public/javascripts/articlegetter.js');
 
-
-
 /* GET home page. */
 router.get('/random', function(req, res, next) {
 	var articleGetter = new ArticleGetter();
