@@ -31,17 +31,7 @@ const ArticleGetter = (function() {
 		};
 
 		this.handleError = function(err) {
-			console.log("Handling error ", err);
-			if (err === true && self.skip === true) {
-
-				const promise = new Promise(function(resolve, reject) {
-					self.render();
-				})
-				.catch(self.handleError);
-
-			} else {
-				console.log("ArticleGuesser encountered an error: ", err);
-			}
+			console.log("Handling error ", err);			
 		};
 
 		this.render = function() {
@@ -49,10 +39,10 @@ const ArticleGetter = (function() {
 			const promise = new Promise(function(resolve, reject) {
 				resolve(self.randomPage());
 			})
-			.then(function(data) {
+
+			promise.then(function(data) {
 				self.randomImage(data);
-			})
-			.catch(self.handleError);
+			});
 
 			return promise;
 
@@ -76,7 +66,6 @@ const ArticleGetter = (function() {
 					});
 			});
 
-			promise.catch(self.handleError);
 
 			return promise;
 
@@ -100,9 +89,9 @@ const ArticleGetter = (function() {
 						const key = Object.keys(query.pages)[0];
 
 						if(!query.pages[key].images) {
-							console.log("No images!");
-							self.skip = true;
-							reject(self.skip);
+							console.log("No images! skip = true line 103");
+
+							reject(title);
 						} else {
 							console.log("setting skip to false line 106");
 						self.skip = false;
@@ -122,20 +111,30 @@ const ArticleGetter = (function() {
 									const key  = query.pages[Object.keys(query.pages)[0]];
 
 									if ( self.filter(key.imageinfo[0].url) === false ) {
-										console.log("Setting skip to true, line 125");
-										self.skip = true;
-										reject(self.skip);
+										console.log(title, "Ends in svg, rerandoming, line 126");
+
+										reject(title);
 									} else {
-										console.log("Setting skip to false, line 129");
+										console.log("Setting skip to false, line 133");
 										self.skip = false;
 										self.imgUrl = key.imageinfo[0].thumburl;
-										resolve(self.imgUrl);
+
+										const articleInfo = {
+											imgUrl: self.imgUrl,
+											imgTitle: title
+										};
+
+										resolve(articleInfo);
 									}
 								} else {
 									throw new Error(err.message);
 								}
 							});
+						});
 
+						p2.catch(function(err) {
+							console.log("Rejecting p2 for ", err);
+							reject(err);
 						});
 						
 						resolve(p2);
@@ -149,13 +148,13 @@ const ArticleGetter = (function() {
 
 			});
 
-			promise.then(function() {
+			promise.catch(function(err) {
+				console.log("Rejecting promise for ", err);
+				reject(err);
 			});
 
-			promise.catch(self.handleError);
-
 			return promise;
-	};
+		};
 
 	this.filter = function(img) {
 		if (img.slice(-4) === ".svg") {
