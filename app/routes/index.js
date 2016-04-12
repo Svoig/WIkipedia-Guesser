@@ -3,8 +3,6 @@ var router = express.Router();
 var app = require('../app.js');
 var ArticleGetter = require('../src/articlegetter.js');
 
-
-
 /* GET home page. */
 router.get('/random', function(req, res, next) {
 	console.log("Getting /random");
