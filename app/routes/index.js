@@ -7,14 +7,15 @@ const ArticleGetter = require('../src/articlegetter.js');
 
 //Get a random page and its image until you find one that works or you hit the repeat limit
 function randLoop(limit) {
-	//Stop looping as soon as you get a 0 for the limit
-	if(limit === 0) return null;
 
 	console.log("randLoop's limit is ", limit);
 
 	const AG = new ArticleGetter();
 
 	const promise = new Promise(function(resolve, reject) {
+		
+		//Stop looping as soon as you get a 0 for the limit
+		if(limit <= 0) reject(null);
 
 		AG.randomPage()
 		.then(AG.randomImage)
@@ -27,13 +28,18 @@ function randLoop(limit) {
 		.catch(function(err) {
 			console.log("Caught an error in randLoop!! ", err);
 			console.log("Typeof err is: ", typeof err);
-			if (typeof err !== "object") {
+			if (typeof err === "string") {
 				console.log("Got a string error. Reducing limit by 1");
-				//randLoop(limit-1);
-			} else {
+				resolve(randLoop(limit-1));
+			} else if(typeof err === "object") {
 				console.log("Err is in randLoop(): ", err);
 
-				reject(err);
+				if (err === null) {
+					resolve(randLoop(5));
+				} else {
+					reject(err);
+				}
+
 			}
 		});
 
@@ -52,6 +58,7 @@ function* randGen(limit) {
 		if (inThen) return "Done!";
 		const rand = yield randLoop()
 		.then(function(data) {
+			inThen = true;
 			res.render('index.hbs', {
 			title: "WikiGuesser", 
 			randTitle: data.imgTitle,
@@ -72,10 +79,10 @@ function* randGen(limit) {
 router.get('/random', function(req, res, next) {
 	console.log("Getting /random");
 	const articleGetter = new ArticleGetter();
-
-	randGen();
-	randGen();
-	/*randLoop(5)
+	console.log("Made a new AG?", !!articleGetter);
+	// randGen();
+	// randGen(2);
+	randLoop(5)
 	.then(function(data) {
 		console.log("randLoop gave the data: ", data);
 		res.render('index.hbs', {
@@ -87,13 +94,18 @@ router.get('/random', function(req, res, next) {
 	.catch(function(err) {
 		console.log("Error from randLoop: ", err);
 
-		res.render("error.hbs", {
-			error: err
-		});
-	});*/
+		if(err !== null) {
+			res.render("error.hbs", {
+				error: err
+			});
+		} else {
+			res.redirect("../random");
+		}
+	});
 	
 
 });
+
 
 router.get('/main', function(req, res, next) {
 	res.render('main.hbs');

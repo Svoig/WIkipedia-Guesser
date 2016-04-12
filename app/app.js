@@ -57,6 +57,11 @@ app.use(function(err, req, res, next) {
 });
 
 
+const port = (process.env.PORT || 3000);
+
+app.listen(port, function() {
+  console.log("WikiGuesser is running on http://localhost:" + port);
+})
 
 
 module.exports = app;
