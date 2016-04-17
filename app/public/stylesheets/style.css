@@ -1,8 +1,8 @@
 body {
-  background-color: #A88ECD;
-  background-image: -webkit-linear-gradient(#A88ECD, #8E68C5);
+  background-color: #000;
   padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 14px "Open Sans", sans-serif;
+  color: #fff;
 }
 
 a {
@@ -12,4 +12,12 @@ a {
 img {
 	margin: 1em;
 	border: 1px solid #FFEE5B;
+}
+
+h1 {
+	color: #fff;
+}
+
+ul {
+	list-style-type: none;
 }
