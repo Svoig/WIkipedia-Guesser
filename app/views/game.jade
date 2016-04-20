@@ -1,13 +1,32 @@
 extends layout.jade
 
 block content
-	h1 #{randTitle}
 
 	img(src="#{pitcher}")
 
+	#score
+		h1 Score:
+		h2(id="score-val") #{score}
+
+	#loading(class="hidden")
+		h3 Loading...
+
 	#choices
 		ul
-			li #{title0}
-			li #{title1}
-			li #{title2}
-			li #{title3}
+			li
+				a #{title0}
+			li
+				a #{title1}
+			li
+				a #{title2}
+			li
+				a #{title3}
+
+	div(id="new-game")
+		h2(id="new-game-btn") New Game
+
+	div(id="correct", class="hidden")
+		h1 #{randTitle}
+
+	form(id="score-form",class="hidden", method="post")
+		input(name="score", id="score-input", type="text", value="0")

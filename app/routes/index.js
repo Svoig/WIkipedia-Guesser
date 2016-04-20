@@ -20,7 +20,6 @@ function randLoop(limit) {
 		AG.randomPage()
 		.then(AG.randomImage)
 		.then(function(data) {
-			console.log("In randLoop, AG.imgUrl is: ,", AG.imgUrl);
 		
 			resolve(data);
 
@@ -63,7 +62,6 @@ function multipleChoice(received) {
 
 	const promise = new Promise(function(resolve, reject) {
 
-		console.log("Let's do some multipleChoice");
 		//Object that will hold final data and get passed to next function in chain
 		const obj = {imgUrl: received.imgUrl, correct: decodeURI(received.imgTitle)};
 		//Array to push into
@@ -80,7 +78,6 @@ function multipleChoice(received) {
 
 			gen.next().value
 			.then(function(data) {
-				console.log("After the first gen.next(), data is ", data);
 				arr.push(data);
 				gen.next().value
 				.then(function(data) {
@@ -99,14 +96,10 @@ function multipleChoice(received) {
 		});
 
 		p1.then(function() {
-			console.log("After all the promises, arr is ", arr);
 
 			for (let i = 0; i < 4; i++) {
 				const rand = Math.floor(Math.random() * arr.length);
-				console.log("Before splicing ", i, " time, arr is ", arr);
 				const spliced = decodeURI(arr.splice(rand-1, 1));
-				console.log("Spliced ", spliced, " out using number ", rand);
-				console.log("Now arr is ", arr);
 				temp.push(spliced);
 			}
 
@@ -132,10 +125,11 @@ router.get('/random', function(req, res, next) {
 
 	})
 	.then(function(data) {
-		console.log("randLoop - multipleChoice - multipleChoice gave the data: ", data);
+		console.log("req.session.score is ", req.session.score);
 		res.render('game.jade', {
 			title: "WikiGuesser",
-			randTitle: "Round 1",
+			score: req.session.score || 0, 
+			randTitle: data.correct,
 			title0: data.titles[0],
 			title1: data.titles[1],
 			title2: data.titles[2],
@@ -158,6 +152,21 @@ router.get('/random', function(req, res, next) {
 
 });
 
+router.post('/random', function(req, res, next) {
+	console.log("Post to /random with req.body of ", req.body);
+
+	if (req.body.score === "new-game") {
+		req.session.regenerate(function(err) {
+			console.log("req.session.regenerate error: ", err);
+		});
+		req.session.score = 0;
+	} else {
+		req.session.score = req.body.score;
+		console.log("req.session is " , req.session);
+	}
+
+	res.redirect('../random');
+});
 
 router.get('/', function(req, res, next) {
 	res.render('main.jade');
