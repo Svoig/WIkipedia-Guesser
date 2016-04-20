@@ -25,8 +25,8 @@ function randLoop(limit) {
 
 		})
 		.catch(function(err) {
-			//console.log("Caught an error in randLoop!! ", err);
-			//console.log("Typeof err is: ", typeof err);
+			console.log("Caught an error in randLoop!! ", err);
+			console.log("Typeof err is: ", typeof err);
 			if (typeof err === "string") {
 				//console.log("Got a string error. Reducing limit by 1");
 				return resolve(randLoop(limit-1));

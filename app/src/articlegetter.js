@@ -26,7 +26,7 @@ const ArticleGetter = (function() {
 			};
 
 		this.toUrl = function(str) {
-			return encodeURIComponent(str);
+			return unescape(decodeURIComponent(str));
 		};
 
 		this.handleError = function(err) {
@@ -56,7 +56,9 @@ const ArticleGetter = (function() {
 					request(self.options, function(err, req, res) {
 
 						if(!err) {
+							console.log("Trying something out... ", decodeURIComponent(unescape(JSON.parse(res).query.random[0].title)));
 							self.randTitle = JSON.parse(res).query.random[0].title;
+							console.log("About to parse URI: ", self.randTitle);
 							self.encodedTitle = self.toUrl(self.randTitle);
 							resolve(self.encodedTitle);
 
