@@ -14,7 +14,7 @@ router.get('/random', function(req, res, next) {
 
 		console.log("In /random, AG.imgUrl is... ", articleGetter.imgUrl);
 
-		res.render('index.hbs', {
+		res.render('index.jade', {
 			title: "WikiGuesser",
 			randTitle: articleGetter.randTitle,
 			pitcher: articleGetter.imgUrl
