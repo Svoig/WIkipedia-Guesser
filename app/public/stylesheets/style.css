@@ -1,15 +1,99 @@
 body {
-  background-color: #A88ECD;
-  background-image: -webkit-linear-gradient(#A88ECD, #8E68C5);
+  background-color: #000;
   padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 14px "Open Sans", sans-serif;
+  color: #fff;
 }
 
 a {
   color: #00B7FF;
+  cursor: pointer;
+}
+
+a:hover {
+	color: #fff;
 }
 
 img {
 	margin: 1em;
 	border: 1px solid #FFEE5B;
+}
+
+h1 {
+	color: #fff;
+}
+
+ul {
+	list-style-type: none;
+}
+
+
+.hidden {
+	display: none;
+}
+
+#wrapper {
+	display: block;
+}
+
+#jumbotron {
+	position: absolute;
+}
+
+#jumbotron img {
+	position: fixed;
+	left: 50%;
+	-webkit-transform: translate(-50%);
+	transform: translate(-50%);
+	margin-right: auto;
+	margin-left: auto;
+}
+
+#score {
+	position: fixed;
+	right: -25%;
+	display: inline-block;
+	clear: right;
+	height: 10em;
+	width: 50%;
+}
+
+#new-game {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate(-50%);
+	transform: translate(-50%);
+	cursor: pointer;
+}
+
+#choices ul {
+	position: fixed;
+	top: 60%;
+	left: 50%;
+	-webkit-transform: translate(-50%);
+	transform: : translate(-50%);
+	text-align: center;
+}
+
+#choices ul li {
+	display: inline;
+	margin-right: 1em;
+	margin-left: 1em;
+}
+
+#loading {
+	/*background-color: #000;
+	border: 1px solid #fff;
+	border-radius: 2px 2px 2px 2px;*/
+	font-size: 50px;
+	font-weight: bold;
+	color: #FFEE5B;
+	position: fixed;
+	z-index: 9999;
+	left: 50%;
+	top: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	transform: : translate(-50%, -50%);
+
 }

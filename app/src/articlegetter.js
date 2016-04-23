@@ -26,8 +26,7 @@ const ArticleGetter = (function() {
 			};
 
 		this.toUrl = function(str) {
-			//Eventually add support for special characters
-			return str.split(" ").join("%20");
+			return unescape(decodeURIComponent(str));
 		};
 
 		this.handleError = function(err) {
@@ -57,7 +56,9 @@ const ArticleGetter = (function() {
 					request(self.options, function(err, req, res) {
 
 						if(!err) {
+							console.log("Trying something out... ", decodeURIComponent(unescape(JSON.parse(res).query.random[0].title)));
 							self.randTitle = JSON.parse(res).query.random[0].title;
+							console.log("About to parse URI: ", self.randTitle);
 							self.encodedTitle = self.toUrl(self.randTitle);
 							resolve(self.encodedTitle);
 
@@ -66,14 +67,13 @@ const ArticleGetter = (function() {
 					});
 			});
 
-
 			return promise;
 
 		};
 
 		this.randomImage = function(title) {
 
-			console.log("Got data ", title, " from randomPage!");
+			//console.log("Got data ", title, " from randomPage!");
 			
 			const urlEnd = "?action=query&format=json&titles=" + self.randTitle + "&prop=images"; 
 			
@@ -89,15 +89,15 @@ const ArticleGetter = (function() {
 						const key = Object.keys(query.pages)[0];
 
 						if(!query.pages[key].images) {
-							console.log("No images! skip = true line 103");
+							//console.log("No images! skip = true line 103");
 
 							reject(title);
 						} else {
-							console.log("setting skip to false line 106");
+							//console.log("setting skip to false line 106");
 						self.skip = false;
 						self.imgTitle = query.pages[key].images[0].title;
 
-						console.log("In randomImage, imgTitle is ... ", self.imgTitle);
+						//console.log("In randomImage, imgTitle is ... ", self.imgTitle);
 
 						self.encodedImgTitle = self.toUrl(self.imgTitle)
 
@@ -111,11 +111,11 @@ const ArticleGetter = (function() {
 									const key  = query.pages[Object.keys(query.pages)[0]];
 
 									if ( self.filter(key.imageinfo[0].url) === false ) {
-										console.log(title, "Ends in svg, rerandoming, line 126");
+										//console.log(title, "Ends in svg, rerandoming, line 126");
 
 										reject(title);
 									} else {
-										console.log("Setting skip to false, line 133");
+										//console.log("Setting skip to false, line 133");
 										self.skip = false;
 										self.imgUrl = key.imageinfo[0].thumburl;
 
@@ -133,7 +133,7 @@ const ArticleGetter = (function() {
 						});
 
 						p2.catch(function(err) {
-							console.log("Rejecting p2 for ", err);
+							// console.log("Error! AG: Rejecting p2 for ", err);
 							reject(err);
 						});
 						
@@ -149,7 +149,7 @@ const ArticleGetter = (function() {
 			});
 
 			promise.catch(function(err) {
-				console.log("Rejecting promise for ", err);
+				// console.log("Error! AG: Rejecting promise for ", err);
 				reject(err);
 			});
 
