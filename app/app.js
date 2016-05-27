@@ -69,7 +69,7 @@ app.use(function(err, req, res, next) {
   });
 });
 
-const port = (process.env.PORT || 3000);
+const port = (process.env.PORT || 8000);
 
 app.listen(port, function() {
   console.log("WikiGuesser is running on http://localhost:" + port);
